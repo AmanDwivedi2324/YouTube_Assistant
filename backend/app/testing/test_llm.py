@@ -10,6 +10,7 @@ llm = ChatGoogleGenerativeAI(
 )
 
 response = llm.invoke("Explain what LangChain is in one sentence.")
-print(response.content)
+print(response)
+# print(response.content)
 
 # print(response.text)
