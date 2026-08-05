@@ -13,7 +13,8 @@ def get_transcript_documents(video_id: str):
             metadata={
                 "video_id":video_id,
                 "start_time":item.start,
-                "duration":item.duration
+                "duration":item.duration,
+                "source": "youtube"
             }
         )
 
