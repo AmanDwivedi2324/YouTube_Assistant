@@ -1,10 +1,25 @@
 from youtube_transcript_api import YouTubeTranscriptApi 
+from langchain_core.documents import Document 
 
-def get_transcript(video_id : str):
+def get_transcript_documents(video_id: str):
     api = YouTubeTranscriptApi()
     transcript = api.fetch(video_id)
 
-    return transcript
+    documents = []
+
+    for item in transcript:
+        doc = Document(
+            page_content=item.text,
+            metadata={
+                "video_id":video_id,
+                "start_time":item.start,
+                "duration":item.duration
+            }
+        )
+
+        documents.append(doc)
+        
+    return documents
 
 
 
