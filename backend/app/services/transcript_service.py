@@ -7,13 +7,14 @@ def get_transcript_documents(video_id: str):
 
     documents = []
 
-    for item in transcript:
+    for index, item in enumerate(transcript):
         doc = Document(
             page_content=item.text,
             metadata={
                 "video_id":video_id,
+                "chunk_index": index,
                 "start_time":item.start,
-                "duration":item.duration,
+                "duration":item.start + item.duration,
                 "source": "youtube"
             }
         )
