@@ -5,16 +5,17 @@ def get_transcript_documents(video_id: str):
     api = YouTubeTranscriptApi()
     transcript = api.fetch(video_id)
 
+    full_text = " ".join(item.text for item in transcript)
+
     documents = []
 
     for index, item in enumerate(transcript):
         doc = Document(
-            page_content=item.text,
+            page_content=full_text,
             metadata={
                 "video_id":video_id,
-                "chunk_index": index,
-                "start_time":item.start,
-                "duration":item.start + item.duration,
+                "start_time":transcript[0].start,
+                "end_time":transcript[-1].start + transcript[-1].duration,
                 "source": "youtube"
             }
         )
@@ -27,25 +28,3 @@ def get_transcript_documents(video_id: str):
 
 
 
-
-
-# to get actual script from raw response 
-
-
-# from youtube_transcript_api import YouTubeTranscriptApi
-
-# video_id = "T89BLjI5Row"
-
-# api = YouTubeTranscriptApi()
-
-# transcript = api.fetch(
-#     video_id,
-#     languages=["en"]
-# )
-
-# text = " ".join(
-#     snippet.text
-#     for snippet in transcript
-# )
-
-# print(text)
