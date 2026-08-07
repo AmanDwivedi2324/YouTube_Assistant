@@ -1,16 +1,11 @@
 import os
 from dotenv import load_dotenv
-from langchain_google_genai import ChatGoogleGenerativeAI
-
 load_dotenv()
 
-llm = ChatGoogleGenerativeAI(
-    model="gemini-3.6-flash",
-    temperature=0
-)
+from app.services.llm_service import generate_answer
 
-response = llm.invoke("Explain what LangChain is in one sentence.")
-print(response)
-# print(response.content)
+prompt = """You are a helpful assistant. Answer the following question : What is the capital of India?"""
 
-# print(response.text)
+answer = generate_answer(prompt)
+
+print("Answer is : ", answer)
