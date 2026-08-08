@@ -1,6 +1,6 @@
 from app.services.transcript_service import get_transcript_document
 from app.services.chunking_service import split_documents
-from app.services.pinecone_services import upsert_chunks
+from backend.app.services.pinecone_service import upsert_chunks
 
 video_id = "9syVtJb7GTc"
 

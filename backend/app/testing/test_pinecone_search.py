@@ -1,4 +1,4 @@
-from app.services.pinecone_services import pinecone_index
+from backend.app.services.pinecone_service import pinecone_index
 
 print(type(pinecone_index))
 
