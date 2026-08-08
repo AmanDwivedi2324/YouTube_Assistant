@@ -1,21 +1,31 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-
+from utils.youtube_utils import extract_video_id
 from app.services.rag_service import answer_question
+from app.services.pinecone_service import video_exists
+from app.services.video_service import ingest_video
 
 router = APIRouter()
 
 class ChatRequest(BaseModel):
-    video_id:str
+    youtube_url:str
     question:str 
 
 @router.post("/chat")
 def chat(request: ChatRequest):
 
-    answer = answer_question(request.question,video_id=request.video_id)
+    video_id = extract_video_id(request.youtube_url)
+
+     # Check whether video is already processed
+    if not video_exists(video_id):
+        ingest_video(request.youtube_url)
+
+
+    # Now answer using RAG
+    answer = answer_question(question=request.question,video_id=video_id)
 
     return {
-        "video_id": request.video_id,
+        "video_id": video_id,
         "question": request.question,
         "answer": answer
     }

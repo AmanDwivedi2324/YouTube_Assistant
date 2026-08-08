@@ -16,6 +16,12 @@ def answer_question(
         top_k=top_k
     )
 
+    print("\nRetrieved chunks:")
+    for chunk in chunks:
+        print("Score:", chunk["score"])
+        print("Text:", chunk["text"][:200])
+        print("-" * 50)
+
 
     #Build context
 

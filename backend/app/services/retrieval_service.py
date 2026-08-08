@@ -21,5 +21,10 @@ def search_chunks(
     )
 
     return [
-        hit["fields"] for hit in results["result"]["hits"]
+        {
+            "score": hit["_score"],
+            "text": hit["fields"]["text"],
+            "video_id": hit["fields"]["video_id"]
+        }
+        for hit in results["result"]["hits"]
     ]
