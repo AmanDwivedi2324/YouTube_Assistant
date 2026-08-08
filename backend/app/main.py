@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from app.api.routes.chat import router as chat_router
+from app.api.routes.video import router as video_router
 
 app = FastAPI(
     title="YouTube Assistant API",
@@ -7,4 +8,4 @@ app = FastAPI(
 )
 
 app.include_router(chat_router)
-
+app.include_router(video_router)
