@@ -4,6 +4,7 @@ from app.services.llm_service import generate_answer
 
 def answer_question(
         question:str,
+        video_id:str,
         top_k:int=3
 ):
     
@@ -11,6 +12,7 @@ def answer_question(
 
     chunks = search_chunks(
         query=question,
+        video_id=video_id,
         top_k=top_k
     )
 

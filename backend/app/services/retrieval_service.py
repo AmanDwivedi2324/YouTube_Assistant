@@ -1,33 +1,25 @@
 from app.services.pinecone_service import pinecone_index
 
 def search_chunks(
-        query:str,
+        query: str,
+        video_id: str,
         top_k:int=3,
         namespace:str = "youtube"
 ):
     
-    results = pinecone_index.search_records(
+    results = pinecone_index.search(
         namespace=namespace,
         query={
             "inputs":{
                 "text":query
             },
-            "top_k":top_k
+            "top_k":top_k,
+            "filter":{
+                "video_id": video_id
+            }
         }
     )
 
-    hits = results["result"]["hits"]
-
-    chunks = []
-
-    for hit in hits:
-        fields = hit["fields"]
-
-        chunks.append({
-            "text":fields.get("text"),
-            "video_id": fields.get("video_id"),
-            "source": fields.get("source"),
-            "score": hit.get("_score")
-        })
-
-    return chunks
+    return [
+        hit["fields"] for hit in results["result"]["hits"]
+    ]
