@@ -3,35 +3,58 @@ import React, { useState } from 'react'
 import Header from './components/Header'
 import VideoInput from './components/VideoInput'
 import ChatWindow from './components/ChatWindow'
-import Loading from './components/Loading'
+import ChatInput from './components/ChatInput'
 
 import { askQuestion } from './services/api'
+
 
 const App = () => {
 
   const [youtubeUrl, setYoutubeUrl] = useState('')
+
   const [question, setQuestion] = useState('')
 
   const [messages, setMessages] = useState([])
 
   const [loading, setLoading] = useState(false)
 
+  const [videoConnected, setVideoConnected] = useState(false)
 
-  const handleSubmit = async () => {
+
+  /*
+   * Initial video setup
+   */
+
+  const handleVideoSubmit = async () => {
 
     if (!youtubeUrl.trim()) {
-      alert('Please enter a YouTube URL.')
+      return
+    }
+
+    setVideoConnected(true)
+
+  }
+
+
+  /*
+   * Ask question
+   */
+
+  const handleQuestionSubmit = async () => {
+
+    if (!youtubeUrl.trim()) {
       return
     }
 
     if (!question.trim()) {
-      alert('Please enter a question.')
       return
     }
 
-    const currentQuestion = question
 
-    // Show user question immediately
+    const currentQuestion = question.trim()
+
+
+    // Add user's message immediately
 
     setMessages((previous) => [
       ...previous,
@@ -41,7 +64,9 @@ const App = () => {
       },
     ])
 
+
     setQuestion('')
+
     setLoading(true)
 
 
@@ -52,8 +77,6 @@ const App = () => {
         currentQuestion
       )
 
-
-      // Add AI response
 
       setMessages((previous) => [
         ...previous,
@@ -69,7 +92,7 @@ const App = () => {
         ...previous,
         {
           type: 'assistant',
-          content: error.message,
+          content: error.message || 'Something went wrong.',
         },
       ])
 
@@ -78,85 +101,95 @@ const App = () => {
       setLoading(false)
 
     }
+
   }
 
 
-  return (
-    <div className="min-h-screen bg-slate-950 text-white">
+  /*
+   * Start a completely new video
+   */
 
-      <Header />
+  const handleNewVideo = () => {
 
+    setYoutubeUrl('')
 
-      <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-16">
+    setQuestion('')
 
-        {/* Hero */}
+    setMessages([])
 
-        <section className="mb-10 text-center">
+    setVideoConnected(false)
 
-          <div className="mb-4 inline-flex items-center rounded-full border border-red-400/20 bg-red-400/10 px-3 py-1 text-xs font-medium text-red-300">
-            AI-Powered Video Assistant
-          </div>
+    setLoading(false)
 
-          <h2 className="text-3xl font-bold tracking-tight sm:text-5xl">
-            Chat with any
-            <span className="text-red-400"> YouTube video</span>
-          </h2>
-
-          <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-slate-400 sm:text-base">
-            Paste a YouTube URL and ask questions about the video.
-            Our RAG pipeline finds the relevant context before generating
-            an answer.
-          </p>
-
-        </section>
+  }
 
 
-        {/* Input */}
+  /*
+   * Initial screen
+   */
 
-        <VideoInput
-          youtubeUrl={youtubeUrl}
-          setYoutubeUrl={setYoutubeUrl}
-          question={question}
-          setQuestion={setQuestion}
-          onSubmit={handleSubmit}
-          loading={loading}
+  if (!videoConnected) {
+
+    return (
+      <div className="flex min-h-screen flex-col bg-slate-950">
+
+        <Header
+          youtubeUrl=""
+          onNewVideo={handleNewVideo}
         />
 
 
-        {/* Loading */}
+        <main className="flex flex-1 items-center justify-center px-4 py-10 sm:px-6">
 
-        {loading && <Loading />}
+          <VideoInput
+            youtubeUrl={youtubeUrl}
+            setYoutubeUrl={setYoutubeUrl}
+            onSubmit={handleVideoSubmit}
+            loading={loading}
+          />
 
-
-        {/* Chat */}
-
-        <ChatWindow messages={messages} />
-
-
-        {/* Empty state */}
-
-        {messages.length === 0 && !loading && (
-
-          <div className="mt-12 text-center">
-
-            <p className="text-sm text-slate-500">
-              Paste a video above and start asking questions.
-            </p>
-
-          </div>
-
-        )}
-
-      </main>
+        </main>
 
 
-      <footer className="border-t border-white/5 py-6 text-center">
+        <footer className="shrink-0 py-5 text-center">
 
-        <p className="text-xs text-slate-600">
-          Built with React, FastAPI, Pinecone & Gemini
-        </p>
+          <p className="text-xs text-slate-700">
+            Built with React · FastAPI · Pinecone · Gemini
+          </p>
 
-      </footer>
+        </footer>
+
+      </div>
+    )
+
+  }
+
+
+  /*
+   * Chat screen
+   */
+
+  return (
+    <div className="flex h-screen flex-col overflow-hidden bg-slate-950">
+
+      <Header
+        youtubeUrl={youtubeUrl}
+        onNewVideo={handleNewVideo}
+      />
+
+
+      <ChatWindow
+        messages={messages}
+        loading={loading}
+      />
+
+
+      <ChatInput
+        question={question}
+        setQuestion={setQuestion}
+        onSubmit={handleQuestionSubmit}
+        loading={loading}
+      />
 
     </div>
   )
