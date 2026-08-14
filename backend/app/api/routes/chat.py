@@ -5,6 +5,7 @@ from app.utils.youtube_utils import extract_video_id
 from app.services.rag_service import answer_question
 from app.services.pinecone_service import video_exists
 from app.services.video_service import ingest_video
+from app.services.transcript_service import TranscriptNotFoundError
 
 router = APIRouter()
 
@@ -32,9 +33,9 @@ def chat(request: ChatRequest):
             "answer": answer
         }
     
-    except ValueError as error:
+    except TranscriptNotFoundError as error:
         raise HTTPException(
-            status_code=400,
+            status_code=422,
             detail=str(error)
         )
     
