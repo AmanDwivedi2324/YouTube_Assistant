@@ -1,72 +1,95 @@
-# YouTube Assistant
+# 🎥 YouTube Assistant
 
-An AI-powered **YouTube RAG chatbot** that allows users to ask questions about a YouTube video and receive answers based strictly on the video's transcript.
+> An AI-powered RAG chatbot that lets users ask questions about YouTube videos and receive answers grounded in the video's transcript.
 
-## Overview
+## 🚀 Overview
 
-YouTube Assistant uses **Retrieval-Augmented Generation (RAG)** to transform YouTube video transcripts into a searchable knowledge base.
+**YouTube Assistant** is a full-stack Generative AI application built using **Retrieval-Augmented Generation (RAG)**.
 
-The user provides a **YouTube URL and a question**. The application extracts the video ID and checks whether the video has already been processed.
+Users provide a YouTube URL and ask questions about the video. The application automatically extracts the transcript, splits it into chunks, stores the data in **Pinecone**, retrieves the most relevant context for each question, and uses **Google Gemini** to generate a grounded answer.
 
-If it hasn't been processed, the system automatically:
+If the requested information is not available in the video context, the assistant avoids making up an answer.
 
-1. Fetches the transcript
-2. Splits it into smaller chunks
-3. Stores the chunks in Pinecone
-4. Retrieves the most relevant chunks for the user's question
-5. Sends the retrieved context to Google Gemini
-6. Generates a grounded answer
-
-If the required information is not present in the video context, the assistant does not make up an answer.
-
-## Architecture
+## 🔄 How It Works
 
 ```text
-                    User
-                     │
-                     ▼
-          YouTube URL + Question
-                     │
-                     ▼
-             Extract Video ID
-                     │
-                     ▼
-            Check Pinecone
-              /          \
-           Exists       New Video
-             │             │
-             │             ▼
-             │       Fetch Transcript
-             │             │
-             │             ▼
-             │          Chunking
-             │             │
-             │             ▼
-             │          Pinecone
-             │             │
-             └──────┬──────┘
-                    ▼
-            Semantic Retrieval
-                    │
-                    ▼
-             Relevant Chunks
-                    │
-                    ▼
-              Google Gemini
-                    │
-                    ▼
-             Grounded Answer
+YouTube URL + Question
+        ↓
+   Extract Video ID
+        ↓
+   Check Pinecone
+        ↓
+ ┌──────┴──────┐
+ │             │
+Exists       New Video
+ │             │
+ │       Fetch Transcript
+ │             ↓
+ │          Chunking
+ │             ↓
+ │          Pinecone
+ │             │
+ └──────┬──────┘
+        ↓
+ Semantic Retrieval
+        ↓
+ Relevant Transcript Chunks
+        ↓
+      Gemini LLM
+        ↓
+   Grounded Answer
 
 
-## RAG Pipeline
 
+🛠️ Tech Stack
+
+Frontend
+
+React
+Vite
+Tailwind CSS
+
+Backend
+
+Python
+FastAPI
+Uvicorn
+
+AI / RAG
+
+LangChain
+Google Gemini
+Pinecone
+YouTube Transcript API
+
+Deployment
+
+Docker
+Docker Compose
+Render
+✨ Features
+🎬 Ask questions about YouTube videos
+🔗 Accept YouTube URLs directly
+📝 Automatic transcript extraction
+✂️ Transcript chunking with overlapping chunks
+🔎 Semantic search using Pinecone
+🧠 Gemini-powered contextual answers
+♻️ Avoids re-processing already indexed videos
+📌 Video-specific retrieval using video_id
+💬 Conversational chat interface
+🛡️ Context-grounded responses
+🚫 Handles questions outside the video's context
+📱 Responsive frontend
+🐳 Dockerized application
+☁️ Cloud deployment ready
+🧠 RAG Pipeline
 YouTube URL
     ↓
 Video ID Extraction
     ↓
 Transcript Extraction
     ↓
-Document Creation
+LangChain Documents
     ↓
 Recursive Text Splitting
     ↓
@@ -76,21 +99,17 @@ Pinecone Vector Database
     ↓
 Similarity Search
     ↓
-Relevant Transcript Chunks
+Relevant Context
     ↓
-Prompt + Context
+Prompt Construction
     ↓
-Gemini
+Google Gemini
     ↓
 Final Answer
-
-
-##Project Structure
-
+🏗️ Project Structure
 YouTube_Assistant/
 │
 ├── backend/
-│   │
 │   ├── app/
 │   │   ├── api/
 │   │   │   └── routes/
@@ -101,18 +120,11 @@ YouTube_Assistant/
 │   │   │   ├── transcript_service.py
 │   │   │   ├── chunking_service.py
 │   │   │   ├── pinecone_service.py
-│   │   │   ├── video_service.py
 │   │   │   ├── retrieval_service.py
-│   │   │   └── rag_service.py
+│   │   │   ├── rag_service.py
+│   │   │   └── video_service.py
 │   │   │
 │   │   ├── testing/
-│   │   │   ├── test_transcript.py
-│   │   │   ├── test_chunking.py
-│   │   │   ├── test_pinecone.py
-│   │   │   ├── test_retrieval.py
-│   │   │   ├── test_prompt.py
-│   │   │   └── test_rag.py
-│   │   │
 │   │   └── main.py
 │   │
 │   ├── requirements.txt
@@ -121,17 +133,121 @@ YouTube_Assistant/
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   └── App.jsx
-│   │
 │   ├── package.json
-│   ├── Dockerfile
-│   └── .env
+│   └── Dockerfile
 │
 ├── docker-compose.yml
 └── README.md
+⚙️ Local Setup
+1. Clone the repository
+git clone <YOUR_GITHUB_REPOSITORY_URL>
+cd YouTube_Assistant
+2. Backend
+cd backend
 
 
+python -m venv .venv
 
+Activate the virtual environment.
+
+Windows:
+
+.venv\Scripts\activate
+
+Install dependencies:
+
+pip install -r requirements.txt
+
+Create a .env file inside backend/:
+
+GOOGLE_API_KEY=your_google_api_key
+PINECONE_API_KEY=your_pinecone_api_key
+PINECONE_INDEX_NAME=your_pinecone_index_name
+
+Start the backend:
+
+uvicorn app.main:app --reload
+
+Backend:
+
+http://localhost:8000
+
+API documentation:
+
+http://localhost:8000/docs
+3. Frontend
+
+Open another terminal:
+
+cd frontend
+npm install
+npm run dev
+
+Frontend:
+
+http://localhost:5173
+🐳 Run with Docker
+
+From the project root:
+
+docker compose up --build
+
+Docker Compose starts the application services together.
+
+🔐 Environment Variables
+
+Create the required environment variables locally:
+
+GOOGLE_API_KEY=
+PINECONE_API_KEY=
+PINECONE_INDEX_NAME=
+
+Never commit API keys or .env files to GitHub.
+
+💡 Example
+
+User asks:
+
+What does the speaker say about following others?
+
+The system retrieves the relevant transcript chunks and Gemini generates an answer based on that context.
+
+If the user asks something unrelated, such as:
+
+Who is Virat Kohli?
+
+and the information isn't present in the video transcript, the assistant responds that it could not find the answer in the provided video context instead of using unrelated knowledge.
+
+📌 Important
+
+The application depends on an available YouTube transcript. Videos without a usable transcript cannot be processed.
+
+🎯 What This Project Demonstrates
+
+This project demonstrates an end-to-end Generative AI application combining:
+
+React
+  +
+FastAPI
+  +
+LangChain
+  +
+RAG
+  +
+Embeddings
+  +
+Pinecone
+  +
+Gemini
+  +
+Docker
+  +
+Cloud Deployment
+
+It showcases how unstructured YouTube video content can be transformed into a searchable and conversational knowledge source.
+
+👨‍💻 Author
+
+Aman Dwivedi
+
+AI/ML Engineer | Generative AI & Agentic Systems | Backend & Full-Stack Engineering
