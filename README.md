@@ -56,3 +56,82 @@ If the required information is not present in the video context, the assistant d
                     │
                     ▼
              Grounded Answer
+
+
+# RAG Pipeline
+
+YouTube URL
+    ↓
+Video ID Extraction
+    ↓
+Transcript Extraction
+    ↓
+Document Creation
+    ↓
+Recursive Text Splitting
+    ↓
+Embeddings
+    ↓
+Pinecone Vector Database
+    ↓
+Similarity Search
+    ↓
+Relevant Transcript Chunks
+    ↓
+Prompt + Context
+    ↓
+Gemini
+    ↓
+Final Answer
+
+
+# Project Structure
+
+YouTube_Assistant/
+│
+├── backend/
+│   │
+│   ├── app/
+│   │   ├── api/
+│   │   │   └── routes/
+│   │   │       ├── chat.py
+│   │   │       └── video.py
+│   │   │
+│   │   ├── services/
+│   │   │   ├── transcript_service.py
+│   │   │   ├── chunking_service.py
+│   │   │   ├── pinecone_service.py
+│   │   │   ├── video_service.py
+│   │   │   ├── retrieval_service.py
+│   │   │   └── rag_service.py
+│   │   │
+│   │   ├── testing/
+│   │   │   ├── test_transcript.py
+│   │   │   ├── test_chunking.py
+│   │   │   ├── test_pinecone.py
+│   │   │   ├── test_retrieval.py
+│   │   │   ├── test_prompt.py
+│   │   │   └── test_rag.py
+│   │   │
+│   │   └── main.py
+│   │
+│   ├── requirements.txt
+│   ├── Dockerfile
+│   └── .env
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   └── App.jsx
+│   │
+│   ├── package.json
+│   ├── Dockerfile
+│   └── .env
+│
+├── docker-compose.yml
+└── README.md
+
+
+
