@@ -58,7 +58,7 @@ If the required information is not present in the video context, the assistant d
              Grounded Answer
 
 
-# RAG Pipeline
+## RAG Pipeline
 
 YouTube URL
     ↓
@@ -85,7 +85,7 @@ Gemini
 Final Answer
 
 
-# Project Structure
+##Project Structure
 
 YouTube_Assistant/
 │
