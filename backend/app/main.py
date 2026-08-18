@@ -19,3 +19,10 @@ app.add_middleware(
 
 app.include_router(chat_router)
 app.include_router(video_router)
+
+@app.get("/")
+def root():
+    return {
+        "message": "YouTube Assistant API is running",
+        "docs": "/docs"
+    }
