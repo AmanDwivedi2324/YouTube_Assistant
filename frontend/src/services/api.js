@@ -2,7 +2,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export const askQuestion = async (youtubeUrl, question) => {
 
-  const response = await fetch(`${API_BASE_URL}/chat`, {
+  const response = await fetch("https://youtube-assistant-backend.onrender.com/chat", {
     method: 'POST',
 
     headers: {
