@@ -39,8 +39,15 @@ def chat(request: ChatRequest):
             detail=str(error)
         )
     
-    except Exception:
+    # except Exception:
+    #     raise HTTPException(
+    #         status_code=500,
+    #         detail="Something went wrong while processing the request."
+    #     )
+
+    except Exception as error:
+        print("CHAT ERROR:", repr(error))
         raise HTTPException(
             status_code=500,
-            detail="Something went wrong while processing the request."
+            detail=str(error)
         )
