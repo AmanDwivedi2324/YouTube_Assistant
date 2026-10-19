@@ -34,3 +34,26 @@ textarea {
 button {
   cursor: pointer;
 }
+
+@theme {
+  --font-display:
+    "Bricolage Grotesque", Inter, system-ui, sans-serif;
+}
+
+:focus-visible {
+  outline-color: #fca5a5;
+}
+
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

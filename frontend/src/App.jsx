@@ -1,37 +1,44 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 
 import Header from './components/Header'
-import VideoInput from './components/VideoInput'
+import FreeTierNotice from './components/FreeTierNotice'
+import VideoLibrary from './components/VideoLibrary'
+import VideoSidebar from './components/VideoSidebar'
 import ChatWindow from './components/ChatWindow'
 import ChatInput from './components/ChatInput'
 
 import { askQuestion } from './services/api'
+import { getVideoUrl } from './data/videos'
 
 
 const App = () => {
 
-  const [youtubeUrl, setYoutubeUrl] = useState('')
+  // The selected video object from data/videos.js (null = library screen)
+
+  const [video, setVideo] = useState(null)
 
   const [question, setQuestion] = useState('')
 
-  const [messages, setMessages] = useState([])
+  // One conversation per video, so switching videos keeps each chat
 
-  const [loading, setLoading] = useState(false)
+  const [chats, setChats] = useState({})
 
-  const [videoConnected, setVideoConnected] = useState(false)
+  const [loadingId, setLoadingId] = useState(null)
+
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
 
-  /*
-   * Initial video setup
-   */
+  const messages = video ? chats[video.id] || [] : []
 
-  const handleVideoSubmit = async () => {
+  const loading = Boolean(video) && loadingId === video.id
 
-    if (!youtubeUrl.trim()) {
-      return
-    }
 
-    setVideoConnected(true)
+  const addMessage = (videoId, message) => {
+
+    setChats((previous) => ({
+      ...previous,
+      [videoId]: [...(previous[videoId] || []), message],
+    }))
 
   }
 
@@ -40,120 +47,99 @@ const App = () => {
    * Ask question
    */
 
-  const handleQuestionSubmit = async () => {
+  const handleQuestionSubmit = async (text) => {
 
-    if (!youtubeUrl.trim()) {
+    const currentQuestion = (text ?? question).trim()
+
+    if (!video || !currentQuestion || loadingId) {
       return
     }
 
-    if (!question.trim()) {
-      return
-    }
+    // Keep the video this question belongs to, even if the user
+    // switches videos while the answer is loading.
+
+    const target = video
 
 
-    const currentQuestion = question.trim()
-
-
-    // Add user's message immediately
-
-    setMessages((previous) => [
-      ...previous,
-      {
-        type: 'user',
-        content: currentQuestion,
-      },
-    ])
-
+    addMessage(target.id, {
+      type: 'user',
+      content: currentQuestion,
+    })
 
     setQuestion('')
 
-    setLoading(true)
+    setLoadingId(target.id)
 
 
     try {
 
       const data = await askQuestion(
-        youtubeUrl,
+        getVideoUrl(target),
         currentQuestion
       )
 
-
-      setMessages((previous) => [
-        ...previous,
-        {
-          type: 'assistant',
-          content: data.answer,
-        },
-      ])
+      addMessage(target.id, {
+        type: 'assistant',
+        content: data.answer,
+      })
 
     } catch (error) {
 
-      setMessages((previous) => [
-        ...previous,
-        {
-          type: 'assistant',
-          content: error.message || 'Something went wrong.',
-        },
-      ])
+      addMessage(target.id, {
+        type: 'assistant',
+        content: error.message || 'Something went wrong. Please try again.',
+        isError: true,
+      })
 
     } finally {
 
-      setLoading(false)
+      setLoadingId(null)
 
     }
 
   }
 
 
-  /*
-   * Start a completely new video
-   */
+  const handleSelectVideo = (nextVideo) => {
 
-  const handleNewVideo = () => {
-
-    setYoutubeUrl('')
+    setVideo(nextVideo)
 
     setQuestion('')
 
-    setMessages([])
+  }
 
-    setVideoConnected(false)
 
-    setLoading(false)
+  const handleBack = () => {
+
+    setVideo(null)
+
+    setQuestion('')
+
+    setSidebarOpen(false)
 
   }
 
 
   /*
-   * Initial screen
+   * Library screen
    */
 
-  if (!videoConnected) {
+  if (!video) {
 
     return (
       <div className="flex min-h-screen flex-col bg-slate-950">
 
-        <Header
-          youtubeUrl=""
-          onNewVideo={handleNewVideo}
-        />
+        <Header video={null} />
 
+        <main className="flex-1">
 
-        <main className="flex flex-1 items-center justify-center px-4 py-10 sm:px-6">
-
-          <VideoInput
-            youtubeUrl={youtubeUrl}
-            setYoutubeUrl={setYoutubeUrl}
-            onSubmit={handleVideoSubmit}
-            loading={loading}
-          />
+          <VideoLibrary onSelect={handleSelectVideo} />
 
         </main>
 
-
         <footer className="shrink-0 py-5 text-center">
 
-          <p className="text-xs text-slate-700">
+          <p className="text-xs text-slate-600">
             Built with React · FastAPI · Pinecone · Gemini
           </p>
 
@@ -173,23 +159,45 @@ const App = () => {
     <div className="flex h-screen flex-col overflow-hidden bg-slate-950">
 
       <Header
-        youtubeUrl={youtubeUrl}
-        onNewVideo={handleNewVideo}
+        video={video}
+        onBack={handleBack}
+        onOpenSidebar={() => setSidebarOpen(true)}
       />
 
-
-      <ChatWindow
-        messages={messages}
-        loading={loading}
-      />
+      <FreeTierNotice variant="compact" />
 
 
-      <ChatInput
-        question={question}
-        setQuestion={setQuestion}
-        onSubmit={handleQuestionSubmit}
-        loading={loading}
-      />
+      <div className="flex min-h-0 flex-1">
+
+        <VideoSidebar
+          activeId={video.id}
+          chats={chats}
+          onSelect={handleSelectVideo}
+          open={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+        />
+
+
+        <div className="flex min-w-0 flex-1 flex-col">
+
+          <ChatWindow
+            video={video}
+            messages={messages}
+            loading={loading}
+            onAsk={handleQuestionSubmit}
+          />
+
+          <ChatInput
+            question={question}
+            setQuestion={setQuestion}
+            onSubmit={() => handleQuestionSubmit()}
+            loading={Boolean(loadingId)}
+            videoTitle={video.title}
+          />
+
+        </div>
+
+      </div>
 
     </div>
   )

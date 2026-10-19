@@ -1,6 +1,5 @@
-import React from 'react'
 
-const ChatMessage = ({ type, content }) => {
+const ChatMessage = ({ type, content, isError }) => {
 
   const isUser = type === 'user'
 
@@ -50,7 +49,9 @@ const ChatMessage = ({ type, content }) => {
             className={`rounded-2xl px-4 py-3 ${
               isUser
                 ? 'rounded-tr-md bg-red-500 text-white'
-                : 'rounded-tl-md border border-white/10 bg-white/[0.04] text-slate-200'
+                : isError
+                  ? 'rounded-tl-md border border-red-400/30 bg-red-500/10 text-red-100'
+                  : 'rounded-tl-md border border-white/10 bg-white/[0.04] text-slate-200'
             }`}
           >
 

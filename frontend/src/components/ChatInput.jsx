@@ -1,10 +1,10 @@
-import React from 'react'
 
 const ChatInput = ({
   question,
   setQuestion,
   onSubmit,
   loading,
+  videoTitle,
 }) => {
 
   const handleKeyDown = (event) => {
@@ -33,7 +33,9 @@ const ChatInput = ({
             onKeyDown={handleKeyDown}
             disabled={loading}
             rows={1}
-            placeholder="Ask something about the video..."
+            aria-label="Your question"
+            placeholder="Ask a question about this video"
+            title={videoTitle}
             className="max-h-32 min-h-11 flex-1 resize-none bg-transparent px-3 py-2.5 text-sm leading-5 text-white outline-none placeholder:text-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
           />
 

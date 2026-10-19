@@ -1,9 +1,13 @@
-import React, { useEffect, useRef } from 'react'
-import ChatMessage from './ChatMessage'
+import { useEffect, useRef, useState } from 'react'
 
-const ChatWindow = ({ messages, loading }) => {
+import ChatMessage from './ChatMessage'
+import VideoDetails from './VideoDetails'
+
+const ChatWindow = ({ video, messages, loading, onAsk }) => {
 
   const bottomRef = useRef(null)
+
+  const [slow, setSlow] = useState(false)
 
 
   useEffect(() => {
@@ -15,26 +19,33 @@ const ChatWindow = ({ messages, loading }) => {
   }, [messages, loading])
 
 
+  /*
+   * Free-tier hosting goes to sleep when idle, so the first
+   * request can take a while. Tell the user instead of leaving
+   * them with a spinner.
+   */
+
+  useEffect(() => {
+
+    if (!loading) {
+      return undefined
+    }
+
+    const timer = setTimeout(() => setSlow(true), 8000)
+
+    return () => {
+      clearTimeout(timer)
+      setSlow(false)
+    }
+
+  }, [loading])
+
+
   if (messages.length === 0 && !loading) {
     return (
-      <div className="flex flex-1 items-center justify-center px-6">
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-6">
 
-        <div className="max-w-md text-center">
-
-          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-2xl">
-            💬
-          </div>
-
-          <h2 className="text-lg font-semibold text-white">
-            Start the conversation
-          </h2>
-
-          <p className="mt-2 text-sm leading-6 text-slate-500">
-            Ask anything about the YouTube video. The AI will
-            search the video's context before answering.
-          </p>
-
-        </div>
+        <VideoDetails video={video} onAsk={onAsk} disabled={loading} />
 
       </div>
     )
@@ -46,11 +57,15 @@ const ChatWindow = ({ messages, loading }) => {
 
       <div className="mx-auto flex max-w-4xl flex-col gap-6">
 
+        <VideoDetails video={video} variant="compact" />
+
+
         {messages.map((message, index) => (
           <ChatMessage
             key={index}
             type={message.type}
             content={message.content}
+            isError={message.isError}
           />
         ))}
 
@@ -71,7 +86,7 @@ const ChatWindow = ({ messages, loading }) => {
 
               <div className="rounded-2xl rounded-tl-md border border-white/10 bg-white/[0.04] px-4 py-3">
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2" role="status" aria-label="Thinking">
 
                   <span className="h-2 w-2 animate-bounce rounded-full bg-slate-500"></span>
 
@@ -86,6 +101,13 @@ const ChatWindow = ({ messages, loading }) => {
                   ></span>
 
                 </div>
+
+                {slow && (
+                  <p className="mt-2 max-w-xs text-xs leading-5 text-slate-500">
+                    The free server may be waking up. The first answer can
+                    take up to a minute.
+                  </p>
+                )}
 
               </div>
 
